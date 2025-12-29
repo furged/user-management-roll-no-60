@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>User Management</title>
+    <style>
+        body { font-family: Arial; padding: 20px; }
+        input { margin: 5px; }
+        button { margin: 5px; }
+        li { margin: 6px 0; }
+    </style>
+</head>
+<body>
+
+<h2>User Management CRUD</h2>
+
+<input id="username" placeholder="Username">
+<input id="email" placeholder="Email">
+<button onclick="addUser()">Add User</button>
+
+<h3>Users</h3>
+<ul id="userList"></ul>
+
+<script>
+    const API = "/users";
+
+    function loadUsers() {
+        fetch(API)
+            .then(res => res.json())
+            .then(data => {
+                const ul = document.getElementById("userList");
+                ul.innerHTML = "";
+                data.forEach(u => {
+                    ul.innerHTML += `
+                      <li>
+                        ${u.id} | ${u.username} | ${u.email}
+                        <button onclick="deleteUser(${u.id})">Delete</button>
+                      </li>`;
+                });
+            });
+    }
+
+    function addUser() {
+        fetch(API, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                username: document.getElementById("username").value,
+                email: document.getElementById("email").value
+            })
+        }).then(() => {
+            document.getElementById("username").value = "";
+            document.getElementById("email").value = "";
+            loadUsers();
+        });
+    }
+
+    function deleteUser(id) {
+        fetch(API + "/" + id, { method: "DELETE" })
+            .then(() => loadUsers());
+    }
+
+    window.onload = loadUsers;
+</script>
+
+</body>
+</html>
